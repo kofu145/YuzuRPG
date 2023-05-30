@@ -1,0 +1,9 @@
+{
+
+	"tiles": [" ", "O"],
+	"warps": {
+		"testmap": {
+			"0,0": "testmap"
+		}
+	}
+}

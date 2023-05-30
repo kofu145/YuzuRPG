@@ -1,0 +1,66 @@
+# Yukime RPG!
+
+Three states:
+dungeon crawler
+NPC text (can also be overworld based though, to make two)
+battling
+
+display ascii art in all
+
+tile based system:
+every tile is - (or empty) by default
+press key to move wasd
+
+you can name your character
+
+
+# overworld
+all maps are stored as text
+converter from txt file to 2d char array
+
+for each movement command, do a pre step check (check if going to be on a wall tile)
+then do a post step check (check for things like warps, etc)
+
+example map:
+00000000
+00111110
+00100010
+00112110
+00000000
+
+0 = nothing
+1 = wall
+2 = door
+
+then associated collision map, where 0 is walkable and 1 is not
+0 = walkable
+1 = collision
+2 = warp
+
+warps - listed in a huge dictionary of warps - dictionary (likely json file)
+{
+	place:
+	{
+		[0, 0]: warptoplace
+	}
+}
+
+.-------------.
+| Place Names |
+'-------------'
+
+# rpg elements
+set flags set in a flags.txt file or something? or json
+
+DID_POOP = false or true
+
+# battling
+etrian odyssey final fantasy blabl style
+each party member chooses some action
+each party member gets 4 skills to use
+
+priority queue - check vortex card game or whatever tf I was gonna use?
+
+
+console.readkey(false)
+console.clear()

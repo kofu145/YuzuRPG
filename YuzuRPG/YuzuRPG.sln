@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 25.0.1705.4
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YuzuRPG", "YuzuRPG\YuzuRPG.csproj", "{7ACACE4F-52C7-4EC7-8453-45828EE31F2C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8CD4F958-B1B0-4E1A-8F96-57A07ED096C4}"
+	ProjectSection(SolutionItems) = preProject
+		YuzuRPG.sln = YuzuRPG.sln
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7ACACE4F-52C7-4EC7-8453-45828EE31F2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7ACACE4F-52C7-4EC7-8453-45828EE31F2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7ACACE4F-52C7-4EC7-8453-45828EE31F2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7ACACE4F-52C7-4EC7-8453-45828EE31F2C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {81A6298B-37A9-435E-A407-92A43B276714}
+	EndGlobalSection
+EndGlobal
