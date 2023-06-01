@@ -4,8 +4,8 @@ namespace YuzuRPG.Core
 {
 	public class Area
 	{
-		private int[][] map;
-		public int[][] Map {
+		private char[][] map;
+		public char[][] Map {
 			get { return map; }
 			private set { map = value; }
 		}
@@ -38,7 +38,7 @@ namespace YuzuRPG.Core
 
 					line = sr.ReadLine();
 
-					if (line == null || !line.All(char.IsDigit))
+					if (line == null)
 					{
 						throw new InvalidDataException("yrpg map has no valid content!");
 					}
@@ -46,7 +46,7 @@ namespace YuzuRPG.Core
 					// initialize size of our map
 					var rows = (File.ReadLines(path).Count() - 2)/2;
 					var columns = line.Count();
-					map = new int[rows][];
+					map = new char[rows][];
 					colMap = new int[rows][];
 					int currRow = 0;
 					bool makingColMap = false;
@@ -63,7 +63,7 @@ namespace YuzuRPG.Core
 						// note: columns is based upon first line of yrpg file
 
 						if (!makingColMap)
-							map[currRow] = new int[columns];
+							map[currRow] = new char[columns];
 						else
 							colMap[currRow] = new int[columns];
 
@@ -72,7 +72,7 @@ namespace YuzuRPG.Core
 							// c - '0' converts char to int
 							var c = line[i];
 							if (!makingColMap)
-								map[currRow][i] = (int)(c - '0');
+								map[currRow][i] = c;
 							else
 								colMap[currRow][i] = (int)(c - '0');
 						}
@@ -92,32 +92,50 @@ namespace YuzuRPG.Core
 
 		public void Render(string[] tileRef, Player player)
 		{
-			Console.Clear();
+			Console.SetCursorPosition(0, 0);
 
 			string namePlate = Utils.BorderWrapText(Name, 1);
 			Console.WriteLine(namePlate);
 
 			string borderStr = "+" + new string('-', Width) + "+";
 			
-            Console.WriteLine(borderStr);
             for (int i = 0; i < map.Length; i++)
 			{
-				Console.Write("|");
 				for (int j = 0; j < map[0].Length; j++)
 				{
-					
+
 					if (player.X == j && player.Y == i)
+					{
 						Console.Write(player.Model);
+					}
 					else
-						Console.Write(tileRef[map[i][j]]);
+					{
+						switch (map[i][j])
+						{
+							case '@':
+								Console.ForegroundColor = ConsoleColor.White;
+								Console.Write(map[i][j]);
+								Console.ResetColor();
+								break;
+							
+							case 'O':
+								Console.ForegroundColor = ConsoleColor.DarkGray;
+								Console.Write(map[i][j]);
+								Console.ResetColor();
+								break;
+							
+							default:
+								Console.Write(map[i][j]);
+								break;
+						}
+					}
+					
 				}
-                Console.Write("|");
 				Console.WriteLine();
 			}
-            Console.WriteLine(borderStr);
-			Console.WriteLine(player.X);
-			Console.WriteLine(player.Y);
-        }
+            Console.WriteLine(new string('=', Console.WindowWidth));
+			Console.WriteLine($"Position: {player.X}, {player.Y}");
+		}
 
 		public bool CheckIfIntentCollides(Player player, Vector2i intent)
 		{
@@ -141,9 +159,20 @@ namespace YuzuRPG.Core
 			return true;
 		}
 
-        public void CheckForEventTrigger(Player player, Vector2i intent)
+        public EVENTFLAGS CheckForEventTrigger(Player player, Vector2i intent)
         {
+	        int x = player.X;
+	        int y = player.Y;
+	        int intentX = x + intent.X;
+	        int intentY = y + intent.Y;
+	        
+	        bool inBounds = intentX >= 0 && intentX < Width &&
+	                        intentY >= 0 && intentY < Height;
 
+	        if (!inBounds)
+		        return EVENTFLAGS.NONE;
+
+	        return (EVENTFLAGS)colMap[intentY][intentX];
         }
 
     }

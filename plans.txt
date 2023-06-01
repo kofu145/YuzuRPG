@@ -64,3 +64,8 @@ priority queue - check vortex card game or whatever tf I was gonna use?
 
 console.readkey(false)
 console.clear()
+
+# npc
+each NPC has their own random offset 
+every X turns they move randomly
+(make sure they can't stray too far from original position)

@@ -1,4 +1,5 @@
-﻿using YuzuRPG.Core;
+﻿using System.Text;
+using YuzuRPG.Core;
 
 namespace YuzuRPG;
 
@@ -6,6 +7,8 @@ class Program
 {
     static void Main(string[] args)
     {
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.CursorVisible = false;
         string menu = @"
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣀⠀⠀⠀⠀⢀⡤⠒⣸⣷⢔⢢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣻⣮⣡⠒⣀⣠⢊⡠⠒⠁⠐⣿⡹⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀

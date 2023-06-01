@@ -8,7 +8,9 @@ namespace YuzuRPG.Core
 	{
 		public string[] Tiles;
 
-		public Dictionary<string, Dictionary<string, string>> Warps;
-    }
+		public Dictionary<string, Dictionary<string, string[]>> Warps;
+
+		public Dictionary<string, Dictionary<string, string>> NPC;
+	}
 }
 

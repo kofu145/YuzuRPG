@@ -14,7 +14,7 @@ namespace YuzuRPG.Core
 		public Game(string basePath= @"./Content/")
 		{
             Areas = new List<Area>();
-            player = new Player(0, 0, 'J');
+            player = new Player(7, 7, 'J');
             string json;
             using (var sr = new StreamReader(basePath + "data.json"))
             {
@@ -31,6 +31,7 @@ namespace YuzuRPG.Core
                 throw new InvalidDataException("Invalid Game Data file!");
 
             string[] maps = Directory.GetFiles(basePath + "Maps/", "*.yrpg");
+            
             for (int i = 0; i < maps.Length; i++)
             {
                 Areas.Add(new Area(maps[i]));
@@ -47,6 +48,7 @@ namespace YuzuRPG.Core
 
         public void SimOverworld()
         {
+            Console.Clear();
             var running = true;
             while (running)
             {
@@ -71,8 +73,42 @@ namespace YuzuRPG.Core
                         break;
                 }
 
+                var stepFlag = Areas[CurrentArea].CheckForEventTrigger(player, intent);
+                // if true, we've triggered some event!
+                switch (stepFlag)
+                {
+                    case EVENTFLAGS.NONE:
+                        break;
+                    case EVENTFLAGS.COLLIDE:
+                        break;
+                    case EVENTFLAGS.WARP:
+                        player.X += intent.X;
+                        player.Y += intent.Y;
+                        var warpTo = Utils.SearchForWarpPoint(player, Areas[CurrentArea].Name, gameData);
+                        if (warpTo == null)
+                            break;
+                        // warpto format: 0 name 1 coordinates
+                        var coords = Utils.DecodeStringCoords(warpTo[1]);
+                        CurrentArea = Utils.SearchAreaByName(Areas, warpTo[0]);
+                        player.X = coords[0];
+                        player.Y = coords[1];
+                        Console.Clear();
+                        break;
+                    case EVENTFLAGS.NPC:
+                        var intentX = player.X + intent.X;
+                        var intentY = player.Y + intent.Y;
+                        var getDialogue = Utils.SearchForNPC(intentX, intentY, Areas[CurrentArea].Name, gameData);
+                        var convo = new Conversation(getDialogue);
+                        convo.Render();
+                        
+                        break;
+                    case EVENTFLAGS.BATTLE:
+                        break;
+                }
+                
                 // pre step check!
-                if (Areas[CurrentArea].CheckIfIntentCollides(player, intent))
+                if (Areas[CurrentArea].CheckIfIntentCollides(player, intent) && 
+                    (stepFlag == EVENTFLAGS.NONE || stepFlag == EVENTFLAGS.COLLIDE))
                 {
                     player.X += intent.X;
                     player.Y += intent.Y;
@@ -92,6 +128,8 @@ namespace YuzuRPG.Core
 
         }
 
+        
+        
 	}
 }
 
