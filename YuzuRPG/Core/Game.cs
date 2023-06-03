@@ -9,12 +9,15 @@ namespace YuzuRPG.Core
         public readonly GameData gameData;
         public readonly List<Area> Areas;
         public int CurrentArea = 0;
-        public Player player;
+        private Player player;
+        private Camera camera;
 
 		public Game(string basePath= @"./Content/")
 		{
             Areas = new List<Area>();
             player = new Player(7, 7, 'J');
+            camera = new Camera(player, Utils.CAMERAVIEWWIDTH, Utils.CAMERAVIEWHEIGHT);
+            
             string json;
             using (var sr = new StreamReader(basePath + "data.json"))
             {
@@ -53,7 +56,15 @@ namespace YuzuRPG.Core
             while (running)
             {
                 Console.WriteLine("Rendering!");
-                Areas[CurrentArea].Render(gameData.Tiles, player);
+                
+                // this is still bugged lol, you kinda still need your console window to be big enough
+                var renderWidth = Utils.CAMERAVIEWWIDTH < Console.WindowWidth ? Utils.CAMERAVIEWWIDTH : Console.WindowWidth;
+                var renderHeight = Utils.CAMERAVIEWHEIGHT < Console.WindowHeight ? Utils.CAMERAVIEWHEIGHT : Console.WindowHeight;
+
+                camera.Width = renderWidth;
+                camera.Height = renderHeight;
+                
+                Areas[CurrentArea].Render(gameData.Tiles, player, camera.GetRender(Areas[CurrentArea].Map), true);
                 ConsoleKeyInfo input = Console.ReadKey(true);
                 Vector2i intent = new Vector2i(0, 0);
 

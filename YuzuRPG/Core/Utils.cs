@@ -9,6 +9,8 @@ namespace YuzuRPG.Core
 		public static readonly int DIALOGUECUTOFF = 80;
 		public static readonly string DIALOGUEFILEPATH = @"./Content/Dialogue/";
 		public static readonly int TEXTSCROLLSPEED = 10;
+		public static readonly int CAMERAVIEWWIDTH = 80;
+		public static readonly int CAMERAVIEWHEIGHT = 20;
 
 		public static string BorderWrapText(string text, int spacing=0, int explicitLength=0, int lines=0, char lengthBorder='-', char heightBorder='|')
 		{

@@ -90,8 +90,11 @@ namespace YuzuRPG.Core
 
 		}
 
-		public void Render(string[] tileRef, Player player)
+		public void Render(string[] tileRef, Player player, char[][] customMap = null, bool center = false)
 		{
+			var renderMap = map;
+			if (customMap != null)
+				renderMap = customMap;
 			Console.SetCursorPosition(0, 0);
 
 			string namePlate = Utils.BorderWrapText(Name, 1);
@@ -99,33 +102,37 @@ namespace YuzuRPG.Core
 
 			string borderStr = "+" + new string('-', Width) + "+";
 			
-            for (int i = 0; i < map.Length; i++)
+            for (int i = 0; i < renderMap.Length; i++)
 			{
-				for (int j = 0; j < map[0].Length; j++)
+				for (int j = 0; j < renderMap[0].Length; j++)
 				{
 
-					if (player.X == j && player.Y == i)
+					if (player.X == j && player.Y == i && !center)
+					{
+						Console.Write(player.Model);
+					}
+					else if (j == renderMap[0].Length / 2 && i == renderMap.Length / 2 && center)
 					{
 						Console.Write(player.Model);
 					}
 					else
 					{
-						switch (map[i][j])
+						switch (renderMap[i][j])
 						{
 							case '@':
 								Console.ForegroundColor = ConsoleColor.White;
-								Console.Write(map[i][j]);
+								Console.Write(renderMap[i][j]);
 								Console.ResetColor();
 								break;
 							
 							case 'O':
 								Console.ForegroundColor = ConsoleColor.DarkGray;
-								Console.Write(map[i][j]);
+								Console.Write(renderMap[i][j]);
 								Console.ResetColor();
 								break;
 							
 							default:
-								Console.Write(map[i][j]);
+								Console.Write(renderMap[i][j]);
 								break;
 						}
 					}
