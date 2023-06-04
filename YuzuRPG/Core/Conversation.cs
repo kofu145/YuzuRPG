@@ -5,10 +5,10 @@ namespace YuzuRPG.Core;
 public class Conversation
 {
     private List<string> dialogue;
-    public Conversation(string dialogueFileName)
+    public Conversation(string dialogueFileName, GameData gameData)
     {
         dialogue = new List<string>();
-        using (var sr = new StreamReader(Utils.DIALOGUEFILEPATH + dialogueFileName + ".yrpgd"))
+        using (var sr = new StreamReader(gameData.DIALOGUEFILEPATH + dialogueFileName + ".yrpgd"))
         {
             var line = sr.ReadLine();
             if (line != "Dialogue")
@@ -26,7 +26,7 @@ public class Conversation
         
     }
 
-    public void Render()
+    public void Render(GameData gameData)
     {
         Console.SetCursorPosition(0, (int)(Console.WindowHeight/2));
 
@@ -34,15 +34,15 @@ public class Conversation
         for (int i = 0; i < dialogue.Count; i++)
         {
             // split it into multiple lines (text wrap basically) 
-            var displayLine = Utils.TextWrap(dialogue[i], Utils.DIALOGUECUTOFF);
+            var displayLine = Utils.TextWrap(dialogue[i], gameData.DIALOGUECUTOFF);
             displayLine += Environment.NewLine + "Press enter to continue...";
             
             for (int j = 0; j < displayLine.Length; j++)
             {
 
-                Thread.Sleep(Utils.TEXTSCROLLSPEED);
+                Thread.Sleep(gameData.TEXTSCROLLSPEED);
                 var toBorderWrap = Utils.ReplaceUpTo(displayLine, j + 1);
-                textBox = Utils.BorderWrapText(toBorderWrap, 2, Utils.DIALOGUECUTOFF, 4);
+                textBox = Utils.BorderWrapText(toBorderWrap, 2, gameData.DIALOGUECUTOFF, 4);
                 Console.Write(textBox);
                 Console.SetCursorPosition(0, (int)(Console.WindowHeight/2));
                 
@@ -59,11 +59,7 @@ public class Conversation
                     break;
             }
             
-            
-        
-
         }
-
         Console.Clear();
     }
 }

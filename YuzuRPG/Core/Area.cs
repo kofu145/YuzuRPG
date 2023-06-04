@@ -22,10 +22,23 @@ namespace YuzuRPG.Core
 
 		public string Name;
 
+		public string AudioTrack;
+
+		private Dictionary<char, int> colors;
+
 		public Area(string path)
 		{
 			if (File.Exists(path))
 			{
+				// yrpg Map File Format:
+				// A header called "Map"
+				// Name of the location
+				// Name of the audiotrack to play in this area
+				// Color data for specific tiles
+				// Chunk: Map data
+				// A partitioner line called "Collision"
+				// Chunk: Collision/event data
+				
 				using (var sr = new StreamReader(path))
 				{
 					var line = sr.ReadLine();
@@ -36,6 +49,21 @@ namespace YuzuRPG.Core
 
 					Name = sr.ReadLine();
 
+					AudioTrack = sr.ReadLine();
+
+					colors = new Dictionary<char, int>();
+					var colorData = sr.ReadLine();
+					if (colorData.Any())
+					{
+						var colorDefs = colorData.Split(" ");
+						foreach (var colorDef in colorDefs)
+						{
+							var tileAndColor = colorDef.Split(":");
+							colors[tileAndColor[0].ToCharArray()[0]] = Int32.Parse(tileAndColor[1]);
+						}
+
+					}
+					
 					line = sr.ReadLine();
 
 					if (line == null)
@@ -44,7 +72,7 @@ namespace YuzuRPG.Core
 					}
 
 					// initialize size of our map
-					var rows = (File.ReadLines(path).Count() - 2)/2;
+					var rows = (File.ReadLines(path).Count() - 5)/2;
 					var columns = line.Count();
 					map = new char[rows][];
 					colMap = new int[rows][];
@@ -88,6 +116,11 @@ namespace YuzuRPG.Core
 				throw new FileNotFoundException("Invalid File at path specified!");
 			}
 
+			if (map == null)
+			{
+				throw new InvalidDataException("Something went wrong during map loading!");
+			}
+
 		}
 
 		public void Render(string[] tileRef, Player player, char[][] customMap = null, bool center = false)
@@ -117,6 +150,15 @@ namespace YuzuRPG.Core
 					}
 					else
 					{
+						if (colors.ContainsKey(renderMap[i][j]))
+						{
+							Console.ForegroundColor = (ConsoleColor)colors[renderMap[i][j]];
+							Console.Write(renderMap[i][j]);
+							Console.ResetColor();
+						}
+						else
+							Console.Write(renderMap[i][j]);
+						/*
 						switch (renderMap[i][j])
 						{
 							case '@':
@@ -132,16 +174,16 @@ namespace YuzuRPG.Core
 								break;
 							
 							default:
-								Console.Write(renderMap[i][j]);
 								break;
-						}
+						}*/
 					}
 					
 				}
-				Console.WriteLine();
+				// this is needed if we're ever using default values, keep note
+				//Console.WriteLine();
 			}
             Console.WriteLine(new string('=', Console.WindowWidth));
-			Console.WriteLine($"Position: {player.X}, {player.Y}");
+			Console.WriteLine($"Position: {player.X}, {player.Y}" + new string(' ', Console.WindowWidth / 2));
 		}
 
 		public bool CheckIfIntentCollides(Player player, Vector2i intent)

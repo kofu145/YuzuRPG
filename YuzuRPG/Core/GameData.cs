@@ -1,16 +1,14 @@
-﻿using System;
-using Newtonsoft;
-using Newtonsoft.Json;
+﻿namespace YuzuRPG.Core;
 
-namespace YuzuRPG.Core
+public class GameData
 {
-	public class GameData
-	{
-		public string[] Tiles;
-
-		public Dictionary<string, Dictionary<string, string[]>> Warps;
-
-		public Dictionary<string, Dictionary<string, string>> NPC;
-	}
+    public int DIALOGUECUTOFF;
+    public int PLAYERSTARTX;
+    public int PLAYERSTARTY;
+    public string STARTINGMAP;
+    public string DIALOGUEFILEPATH;
+    public int TEXTSCROLLSPEED;
+    public int CAMERAVIEWWIDTH;
+    public int CAMERAVIEWHEIGHT;
+    public int SCREENTRANSITIONSPEED;
 }
-

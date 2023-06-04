@@ -1,0 +1,45 @@
+{
+	// ignore tiles here lol
+	"tiles": [" ", "O", "π","#", "|", "/", "\\", "_", "-", "█", "@"],
+	"warps": {
+		"Starting Town": {
+			"8,5": ["Starting Town House 1", "4,4"]
+		},
+		"Starting Town House 1":{
+			"4,5": ["Starting Town", "8,6"]
+		},
+		"New Dale Town": {
+			"59,0": ["Derweg Pass", "11,43"],
+			"60,0": ["Derweg Pass", "12,43"],
+			"61,0": ["Derweg Pass", "13,43"],
+			"62,0": ["Derweg Pass", "14,43"],
+			"63,0": ["Derweg Pass", "15,43"]
+
+
+		},
+		"Derweg Pass": {
+			"11,44": ["New Dale Town", "59,1"],
+			"12,44": ["New Dale Town", "60,1"],
+			"13,44": ["New Dale Town", "61,1"],
+			"14,44": ["New Dale Town", "62,1"],
+			"15,44": ["New Dale Town", "63,1"]
+		}
+	},
+	"npc": {
+		"Starting Town": {
+			"20,7": "StartingtonNPC2"
+		},
+		"Starting Town House 1": {
+			"8,3": "StartingtonNPC1"
+		},
+		"New Dale Town": {
+			"12,9": "newdaletownhallsign",
+			"27,8": "genericnewdalesign",
+			"47,8": "newdalesign1",
+			"7,19": "genericnewdalesign",
+			"23,12": "newdalecentersign",
+			"74,19": "newdalemeethallsign"
+
+		}
+	}
+}

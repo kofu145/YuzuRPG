@@ -16,6 +16,10 @@ public class Camera
 
     public char[][] GetRender(char[][] map)
     {
+        if (map == null)
+        {
+            throw new InvalidOperationException("Map is null for whatever reason!");
+        }
         view = new char[Height][];
         for (int dy = 0; dy < view.Length; dy++)
         {            

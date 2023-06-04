@@ -39,6 +39,7 @@ class Program
     |_| \__,_/___|\__,_|_|  \_\_|     \_____|
 ";
 
+        menu = File.ReadAllText(@"./Content/DotImages/swordlady.yrpg");
 
         Console.WriteLine(menu);
         Console.WriteLine("======================================================================");

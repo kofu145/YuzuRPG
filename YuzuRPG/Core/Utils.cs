@@ -6,12 +6,7 @@ namespace YuzuRPG.Core
 {
 	public static class Utils
 	{
-		public static readonly int DIALOGUECUTOFF = 80;
-		public static readonly string DIALOGUEFILEPATH = @"./Content/Dialogue/";
-		public static readonly int TEXTSCROLLSPEED = 10;
-		public static readonly int CAMERAVIEWWIDTH = 80;
-		public static readonly int CAMERAVIEWHEIGHT = 20;
-
+		
 		public static string BorderWrapText(string text, int spacing=0, int explicitLength=0, int lines=0, char lengthBorder='-', char heightBorder='|')
 		{
 			if (explicitLength == 0)
@@ -95,21 +90,21 @@ namespace YuzuRPG.Core
 			return output;
 		}
 
-		public static string[] SearchForWarpPoint(Player player, string areaName, GameData gameData)
+		public static string[] SearchForWarpPoint(Player player, string areaName, MapData mapData)
 		{
 			string currentPos = $"{player.X},{player.Y}";
-			if (gameData.Warps.ContainsKey(areaName) && gameData.Warps[areaName].ContainsKey(currentPos))
-				return gameData.Warps[areaName][currentPos];
+			if (mapData.Warps.ContainsKey(areaName) && mapData.Warps[areaName].ContainsKey(currentPos))
+				return mapData.Warps[areaName][currentPos];
 			
 			return null;
 			
 		}
 		
-		public static string SearchForNPC(int x, int y, string areaName, GameData gameData)
+		public static string SearchForNPC(int x, int y, string areaName, MapData mapData)
 		{
 			string currentPos = $"{x},{y}";
-			if (gameData.NPC.ContainsKey(areaName) && gameData.NPC[areaName].ContainsKey(currentPos))
-				return gameData.NPC[areaName][currentPos];
+			if (mapData.NPC.ContainsKey(areaName) && mapData.NPC[areaName].ContainsKey(currentPos))
+				return mapData.NPC[areaName][currentPos];
 			
 			return null;
 			

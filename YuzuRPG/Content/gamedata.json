@@ -1,0 +1,11 @@
+{
+	"DialogueCutoff": 80,
+	"PlayerStartX": 50,
+	"PlayerStartY": 9,
+	"StartingMap": "New Dale Town",
+	"DialogueFilePath": "./Content/Dialogue/",
+	"TextScrollSpeed": 10,
+	"CameraViewWidth": 80,
+	"CameraViewHeight": 20,
+	"ScreenTransitionSpeed": 10
+}
