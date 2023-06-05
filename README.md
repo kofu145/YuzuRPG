@@ -4,7 +4,7 @@
 ![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/kofu145/YuzuRPG/dotnet.yml?branch=master)
 ![GitHub last commit](https://img.shields.io/github/last-commit/kofu145/YuzuRPG)
 ![GitHub contributors](https://img.shields.io/github/contributors/kofu145/YuzuRPG)
-![Lines of Code from tokei mirror](https://tokei.ekzhang.com/b1/github/kofu145/YuzuRPG)
+![Lines of Code from tokei mirror](https://tokei.rs/b1/github/kofu145/YuzuRPG)
 ![GitHub repo size](https://img.shields.io/github/repo-size/kofu145/YuzuRPG)
 ![CodeFactor](https://www.codefactor.io/repository/github/kofu145/yuzurpg/badge)
 
