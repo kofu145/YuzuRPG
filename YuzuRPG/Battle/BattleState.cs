@@ -6,7 +6,8 @@ public enum BattleStates
 {
     ONGOING = 0,
     PLAYERWIN = 1,
-    ENEMYWIN = 2
+    ENEMYWIN = 2,
+    PLAYERRUN = 3
 }
 
 public class BattleState
@@ -16,6 +17,7 @@ public class BattleState
     private BattleData battleData;
     private Random random;
     public PriorityQueue<ActionInfo, int> TurnState;
+    public BattleStates State;
     public string DialogueBuffer;
 
     public BattleState(List<Actor> party, List<Actor> enemies, BattleData battleData)
@@ -25,7 +27,9 @@ public class BattleState
         // descending sort for priority queue (fastest actors should dequeue first)
         TurnState = new PriorityQueue<ActionInfo, int>(Comparer<int>.Create((x, y) => y - x));
         random = new Random();
+        DialogueBuffer = "";
         this.battleData = battleData;
+        State = BattleStates.ONGOING;
     }
 
     public void AdvanceTurnState()
@@ -56,9 +60,10 @@ public class BattleState
             var target = random.Next(0, Party.Count);
             var targets = new List<Actor>() { Party[target] };
 
-            TurnState.Enqueue(
-                new ActionInfo(battleData.SkillTable[enemy.Skills[skillId]], enemy, targets),
-                enemy.Speed);
+            if (enemy.HP > 0)
+                TurnState.Enqueue(
+                    new ActionInfo(battleData.SkillTable[enemy.Skills[skillId]], enemy, targets),
+                    enemy.Speed);
         }
     }
 
@@ -79,10 +84,11 @@ public class BattleState
         }
 
         if (playerWin)
-            return BattleStates.PLAYERWIN;
-        if (enemyWin)
-            return BattleStates.ENEMYWIN;
+            State = BattleStates.PLAYERWIN;
 
-        return BattleStates.ONGOING;
+        if (enemyWin)
+            State = BattleStates.ENEMYWIN;
+        
+        return State;
     }
 }

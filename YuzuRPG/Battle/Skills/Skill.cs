@@ -19,12 +19,15 @@ public abstract class Skill : ISkill
     public int ManaCost { get; protected set; }
     public Elements Element { get; protected set; }
     public AttackType SkillType { get; protected set; }
+    protected Random random;
     
     protected BattleData battleData;
 
     public Skill(BattleData battleData)
     {
         this.battleData = battleData;
+        random = new Random();
+
     }
     
     public abstract void Perform(BattleState battleState, Actor source, List<Actor> targets);
@@ -44,7 +47,6 @@ public abstract class Skill : ISkill
             defense = target.Defense;
         }
 
-        Random random = new Random();
         var damage = ((((float)source.Level / 5)) * Power * (source.Attack / (float)target.Defense)) / 100 + 3;
         // random
         damage = (int)Math.Round(damage * random.Next(85, 100) / 100);
@@ -55,8 +57,8 @@ public abstract class Skill : ISkill
         // STAB
         damage = Element == source.Element ? (int)Math.Round(damage * 1.5) : damage;
 
-        
-        target.HP -= (int)Math.Round(damage);
+        if (random.Next(0, 100) < Accuracy)
+            target.HP -= (int)Math.Round(damage);
         //Console.WriteLine($"Slash is attacking: {target.Name} ({damage} damage to make {target.HP} hp)");
     }
 

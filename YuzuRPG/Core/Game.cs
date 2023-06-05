@@ -20,9 +20,11 @@ namespace YuzuRPG.Core
         public AudioManager audioManager;
         private Transition transition;
         private Stopwatch stepTimer;
+        private Random random;
 
 		public Game(string basePath= @"./Content/")
         {
+            random = new Random();
             mapData = DeserializeJson<MapData>(basePath + "mapdata.json");
             gameData = DeserializeJson<GameData>(basePath + "gamedata.json");
             battleData = DeserializeJson<BattleData>(basePath + "battledata.json");
@@ -87,7 +89,25 @@ namespace YuzuRPG.Core
 
         public void SimBattle()
         {
-
+            if (random.Next(0, 100) < 20)
+            {
+                audioManager.StopMusic();
+                audioManager.PlayMusic("Prepare for Battle!");
+                transition.Render();
+                List<Actor> enemies = new List<Actor>();
+                // less than max btw, so 1, 3 is 1 to 2 enemies
+                var numEnemies = random.Next(1, 4);
+                for (int i = 0; i < numEnemies; i++)
+                {
+                    enemies.Add(new Actor(battleData.ActorModels[0], random.Next(3,6)));
+                    enemies[i].Skills.Add(SkillID.BOUNCE);
+                }
+                var battle = new Battle(player.Party, enemies, battleData, gameData);
+                battle.Render();
+                audioManager.StopMusic();
+                audioManager.PlayMusic(Areas[CurrentArea].AudioTrack);
+                transition.Render();
+            } 
         }
 
         public void SimOverworldInput()
@@ -148,28 +168,30 @@ namespace YuzuRPG.Core
                     
                     break;
                 case EVENTFLAGS.BATTLE:
-                    Random random = new Random();
-                    if (random.Next(1, 50) < 25)
-                    {
-                        audioManager.StopMusic();
-                        audioManager.PlayMusic("Prepare for Battle!");
-                        transition.Render();
-                        List<Actor> enemies = new List<Actor>();
-                        enemies.Add(new Actor(battleData.ActorModels[0], random.Next(3,5)));
-                        enemies[0].Skills.Add(SkillID.SLASH);
-                        var battle = new Battle(player.Party, enemies, battleData, gameData);
-                        battle.Render();
-                        audioManager.StopMusic();
-                        audioManager.PlayMusic(Areas[CurrentArea].AudioTrack);
-                        transition.Render();
-                    } 
+                    player.X += intent.X;
+                    player.Y += intent.Y;
+                    SimBattle();
                     break;
+                case EVENTFLAGS.DEMOFLAG:
+                    Console.Clear();
+                    audioManager.StopMusic();
+                    audioManager.PlayMusic("Take some rest and eat some food!");
+                    var Demotext = @"  _____  ______ __  __  ____     ______      ________ _____  
+ |  __ \|  ____|  \/  |/ __ \   / __ \ \    / /  ____|  __ \ 
+ | |  | | |__  | \  / | |  | | | |  | \ \  / /| |__  | |__) |
+ | |  | |  __| | |\/| | |  | | | |  | |\ \/ / |  __| |  _  / 
+ | |__| | |____| |  | | |__| | | |__| | \  /  | |____| | \ \ 
+ |_____/|______|_|  |_|\____/   \____/   \/   |______|_|  \_\";
+                    Console.WriteLine(Demotext);
+                    while (true)
+                    {
+                        Console.ReadKey(true);
+                    }
             }
             
             // pre step check!
             if (Areas[CurrentArea].CheckIfIntentCollides(player, intent) && 
-                (stepFlag == EVENTFLAGS.NONE || stepFlag == EVENTFLAGS.COLLIDE ||
-                 stepFlag == EVENTFLAGS.BATTLE))
+                (stepFlag == EVENTFLAGS.NONE || stepFlag == EVENTFLAGS.COLLIDE))
             {
                 player.X += intent.X;
                 player.Y += intent.Y;

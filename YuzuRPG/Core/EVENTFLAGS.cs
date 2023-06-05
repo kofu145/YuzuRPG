@@ -7,7 +7,8 @@ namespace YuzuRPG.Core
 		COLLIDE = 1,
 		WARP = 2,
 		NPC = 3,
-		BATTLE = 4
+		BATTLE = 4,
+		DEMOFLAG = 5
 	}
 }
 

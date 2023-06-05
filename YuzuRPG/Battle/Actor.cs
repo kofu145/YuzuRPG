@@ -35,6 +35,18 @@ public class Actor
         Skills = new List<SkillID>();
     }
 
+    public bool AddEXP(int exp)
+    {
+        Exp += exp;
+        if (Exp > MaxExp)
+        {
+            LevelUp();
+            return true;
+        }
+
+        return false;
+    }
+
     public void LevelUp()
     {
         Level++;

@@ -139,13 +139,15 @@ namespace YuzuRPG.Core
 			}
 		}
 
-		public static int RescaleNormal(int value, int min, int max, int minPrime, int maxPrime)
+		public static int RescaleNormal(double value, double min, double max, double minPrime, double maxPrime)
 		{
 			// https://stats.stackexchange.com/questions/70801/how-to-normalize-data-to-0-1-range
 			//   newvalue= (max'-min')/(max-min)*(value-max)+max'
-			var a = (maxPrime - minPrime) / (float)(max - min);
+			/*var a = (maxPrime - minPrime) / (float)(max - min);
 			var b = maxPrime - a * max;
-			return (int)Math.Round(a * value + b);
+			return (int)Math.Round(a * value + b);*/
+
+			return (int)Math.Round((maxPrime - minPrime) / (max - min) * (value - max) + max);
 		}
 	}
 }

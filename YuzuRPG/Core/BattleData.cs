@@ -16,7 +16,8 @@ public class BattleData
     {
         SkillTable = new Dictionary<SkillID, ISkill>()
         {
-            { SkillID.SLASH, new Slash(this) }
+            { SkillID.SLASH, new Slash(this) },
+            { SkillID.BOUNCE, new Bounce(this) }
         
         };
     }

@@ -11,7 +11,7 @@ public class Battle
     public Battle(List<Actor> party, List<Actor> enemies, BattleData battleData, GameData gameData)
     {
         battleState = new BattleState(party, enemies, battleData);
-        this.gameData = new GameData();
+        this.gameData = gameData;
         this.battleData = battleData;
     }
 
@@ -23,28 +23,76 @@ public class Battle
 
             // input
             RenderBattleUI();
+            // input
+            GetBattleInputs(Console.CursorTop);
             battleState.CalculateAIInputs();
 
             // see it play out
-            while (battleState.TurnState.Count > 0)
+            while (battleState.TurnState.Count > 0 && battling)
             {
                 battleState.AdvanceTurnState();
                 // print what is in buffer as if it were a conversation
                 List<string> dialogue = battleState.DialogueBuffer.Split(Environment.NewLine).ToList();
 
-                var battleDialogue = new Conversation(battleState.DialogueBuffer);
+                var battleDialogue = new Conversation(battleState.DialogueBuffer, 1.2f);
+                RenderBattleUI();
                 battleDialogue.Render(gameData);
 
                 battleState.DialogueBuffer = "";
-                if (battleState.IsBattleOver() != BattleStates.ONGOING)
+                Conversation endText;
+                switch (battleState.IsBattleOver())
                 {
-                    battling = false;
-                    break;
+                    case BattleStates.PLAYERWIN:
+                        battling = false;
+                        
+                        int givenExp = 0;
+                        foreach (var actor in battleState.Enemies)
+                        {
+                            var exp = actor.Level * 2 / 3 + actor.Level * 2;
+                            givenExp += exp;
+                        }
+                        string dialogueBuffer = $"All party members gained {givenExp} exp!" + Environment.NewLine;
+
+                        foreach (var actor in battleState.Party)
+                        {
+                            var leveledUp = actor.AddEXP(givenExp);
+                            if (leveledUp)
+                                dialogueBuffer += $"{actor.Name} Leveled up!"+ Environment.NewLine;
+                        }
+                        var expText = new Conversation(dialogueBuffer, 1.2f);
+                        RenderBattleUI();
+                        expText.Render(gameData);
+                        RenderBattleUI();
+
+                        endText = new Conversation("Your party defeated all the enemies!",
+                            1.2f, false);
+                        endText.Render(gameData);
+                        break;
+                    
+                    case BattleStates.ENEMYWIN:
+                        battling = false;
+                        RenderBattleUI();
+                        endText = new Conversation("Your party was defeated!",
+                            1.2f, false);
+                        endText.Render(gameData);
+                        break;
+                    
+                    case BattleStates.PLAYERRUN:
+                        battling = false;
+                        RenderBattleUI();
+                        endText = new Conversation("You ran away!", 1.2f, false);
+                        endText.Render(gameData);
+                        break;
+                    
                 }
             }
         }
     }
 
+    /// <summary>
+    /// Renders all the battle UI for the current ongoing battle
+    /// </summary>
+    /// <returns>the current cursor top, for GetBattleInputs() to use</returns>
     public void RenderBattleUI()
     {
         Console.SetCursorPosition(0, 0);
@@ -55,126 +103,60 @@ public class Battle
         
         // creating enemy boxes
         var boxes = ConstructBoxes(battleState.Enemies);
+        RenderBoxesWithColor(boxes);
 
-        Console.Write(boxes);
-        var image = GetImage(battleState.Enemies[0].ActorBase.Image);
-        Console.WriteLine(new string('=', Console.WindowWidth));
+        // currently can't concatenate everything correctly, so rendering one for now, even for multiple
+        var image = GetImages(battleState.Enemies[0].ActorBase.Image, 1);//battleState.Enemies.Count);
+        Console.WriteLine(image);
+        Console.WriteLine(new string('=', Console.WindowWidth - 1));
+        var partyBoxes = ConstructBoxes(battleState.Party);
+        RenderBoxesWithColor(partyBoxes);
         
-        // input
-        GetBattleInputs(Console.CursorTop);
 
     }
 
     public void GetBattleInputs(int cursorTopStart)
     {
-        
+        Utils.ClearConsoleKeyBuffer();
         for (int actorId=0; actorId<battleState.Party.Count; actorId++)
         {
             Actor actor = battleState.Party[actorId];
             int currChoice = 0;
             int currSkillChoice = 0;
             int currEnemyChoice = 0;
-            bool choosingPrompt = true;
-            while (choosingPrompt)
+            List<string> selections = new List<string>(){ "1. Skills", "2. Items", "3. Run" };
+            
+            List<string> skillSelections = new List<string>();
+            for (int i=0; i<actor.Skills.Count; i++)
             {
-                Console.SetCursorPosition(0, cursorTopStart);
-                
-                List<string> selections = new List<string>(){ "1. Skills", "2. Items", "3. Run" };
-                
-                var inputSelection = ConstructInputPrompts(selections, currChoice);
-                Console.WriteLine(inputSelection);
-                
-                ConsoleKeyInfo input = Console.ReadKey(true);
-                switch (input.Key)
-                {
-                    case ConsoleKey.A:
-                        if (currChoice + 1 < selections.Count)
-                            currChoice++;
-                        break;
-                    case ConsoleKey.D:
-                        if (currChoice - 1 >= 0)
-                            currChoice--;
-                        break;
-                    case ConsoleKey.Enter:
-                        if (currChoice == 0)
-                            choosingPrompt = false;
-                        break;
-                    default:
-                        break;
-                        
-                }
-            }
-
-            choosingPrompt = true;
-            while (choosingPrompt)
-            {
-                Console.SetCursorPosition(0, cursorTopStart);
-
-                List<string> skillSelections = new List<string>();
-
-                for (int i=0; i<actor.Skills.Count; i++)
-                {
-                    skillSelections.Add($"{i+1}. {battleData.SkillTable[actor.Skills[i]].Name}");
-                }
-                
-                var inputSelection = ConstructInputPrompts(skillSelections, currSkillChoice);
-                Console.WriteLine(inputSelection);
-                
-                ConsoleKeyInfo input = Console.ReadKey(true);
-                switch (input.Key)
-                {
-                    case ConsoleKey.A:
-                        if (currSkillChoice + 1 < skillSelections.Count)
-                            currSkillChoice++;
-                        break;
-                    case ConsoleKey.D:
-                        if (currSkillChoice - 1 >= 0)
-                            currSkillChoice--;
-                        break;
-                    case ConsoleKey.Enter:
-                        choosingPrompt = false;
-                        break;
-                    default:
-                        break;
-                        
-                }
+                skillSelections.Add($"{i+1}. {battleData.SkillTable[actor.Skills[i]].Name}");
             }
             
-            choosingPrompt = true;
-            while (choosingPrompt)
+            List<string> enemySelections = new List<string>();
+            for (int i=0; i<battleState.Enemies.Count; i++)
             {
-                Console.SetCursorPosition(0, cursorTopStart);
-
-                List<string> enemySelections = new List<string>();
-
-                for (int i=0; i<battleState.Enemies.Count; i++)
-                {
-                    enemySelections.Add($"{i+1}. {battleState.Enemies[i].Name}");
-                }
-                
-                var inputSelection = ConstructInputPrompts(enemySelections, currEnemyChoice);
-                Console.WriteLine(inputSelection);
-                
-                ConsoleKeyInfo input = Console.ReadKey(true);
-                switch (input.Key)
-                {
-                    case ConsoleKey.A:
-                        if (currEnemyChoice + 1 < enemySelections.Count)
-                            currEnemyChoice++;
-                        break;
-                    case ConsoleKey.D:
-                        if (currEnemyChoice - 1 >= 0)
-                            currEnemyChoice--;
-                        break;
-                    case ConsoleKey.Enter:
-                        choosingPrompt = false;
-                        break;
-                    default:
-                        break;
-                        
-                }
+                enemySelections.Add($"{i+1}. {battleState.Enemies[i].Name}");
             }
-            battleState.InputAction(currSkillChoice, actorId, new List<int>() { currEnemyChoice });
+
+            bool choosing = true;
+            while (choosing)
+            {
+                currChoice = GetPromptLoop(selections, cursorTopStart);
+                switch (currChoice){
+                    case 0:
+                        currSkillChoice = GetPromptLoop(skillSelections, cursorTopStart);
+                        currEnemyChoice = GetPromptLoop(enemySelections, cursorTopStart);
+
+                        battleState.InputAction(currSkillChoice, actorId, new List<int>() { currEnemyChoice });
+                        choosing = false;
+                        break;
+                    case 2:
+                        battleState.State = BattleStates.PLAYERRUN;
+                        choosing = false;
+                        break;
+                }
+
+            }
 
 
         }
@@ -186,13 +168,14 @@ public class Battle
     {
         string boxes = "";
         bool first = true;
-        foreach (var member in battleState.Enemies)
+        foreach (var member in actors)
         {
             var boxString = member.Name + Environment.NewLine;
-            boxString += $"Level {member.Level}" + Environment.NewLine;
+            boxString += $"Level {member.Level} " + Environment.NewLine;
             boxString += $"Element: {member.Element.ToString()}" + Environment.NewLine;
             // calculate HP string based on thing
-            int HPChars = Utils.RescaleNormal(member.HP, 0, member.MaxHP, 0, 14);
+            //int HPChars = Utils.RescaleNormal(member.HP, 0, member.MaxHP, 0, 20);
+            int HPChars = (int)Math.Round(member.HP / (float)member.MaxHP * 14);
             string HPBar = "";
             for (int i = 0; i < 14; i++)
             {
@@ -203,12 +186,12 @@ public class Battle
                     HPBar += "-";
                 }
             }
-
-            boxString += $"|{HPBar}|";
-            boxString = Utils.BorderWrapText(boxString, 2, 16, 4);
+            HPBar = $"|{HPBar}| ({member.HP}/{member.MaxHP})";
+            boxString += HPBar;
+            boxString = Utils.BorderWrapText(boxString, 2, HPBar.Length + 2, 4);
             if (first)
             {
-                boxes = boxString;
+                boxes = boxString += Environment.NewLine;
                 first = false;
             }
             else
@@ -218,7 +201,7 @@ public class Battle
                 var temp = "";
                 for (int i = 0; i < alreadyMade.Length; i++)
                 {
-                    temp = alreadyMade[i] + toAdd[i];
+                    temp += alreadyMade[i] + toAdd[i] + Environment.NewLine;
                 }
 
                 boxes = temp;
@@ -228,6 +211,72 @@ public class Battle
         return boxes;
     }
 
+    private void RenderBoxesWithColor(string box)
+    {
+        string[] toPrint = box.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+        foreach (var str in toPrint)
+        {
+            foreach (var ch in str)
+            {
+                if (ch == '#')
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write(ch);
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Console.Write(ch);
+                }
+            }
+            Console.WriteLine();
+        }
+    }
+
+    private int GetPromptLoop(List<string> selections, int cursorTopStart)
+    {
+        var currChoice = 0;
+        var choosingPrompt = true;
+        while (choosingPrompt)
+        {
+            Console.SetCursorPosition(0, cursorTopStart);
+
+            var inputSelection = ConstructInputPrompts(selections, currChoice);
+            Console.WriteLine(inputSelection);
+                
+            ConsoleKeyInfo input = Console.ReadKey(true);
+            var tuple = SelectionInput(input, currChoice, selections.Count);
+            choosingPrompt = tuple.Item1;
+            currChoice = tuple.Item2;
+        }
+
+        return currChoice;
+    }
+
+    public Tuple<bool, int> SelectionInput(ConsoleKeyInfo input, int currChoice, int max)
+    {
+        bool choosing = true;
+        switch (input.Key)
+        {
+            case ConsoleKey.D:
+                if (currChoice + 1 < max)
+                    currChoice++;
+                break;
+            case ConsoleKey.A:
+                if (currChoice - 1 >= 0)
+                    currChoice--;
+                break;
+            case ConsoleKey.Enter:
+                choosing = false;
+                break;
+            default:
+                break;
+                        
+        }
+
+        return new Tuple<bool, int>(choosing, currChoice);
+    }
+
     public string ConstructInputPrompts(List<string> choices, int currChoice)
     {
         // make input selection string
@@ -235,23 +284,27 @@ public class Battle
         for (int i=0; i<choices.Count; i++)
         {
             if (i == currChoice)
-                inputSelection += "*";
+                inputSelection += " *";
             else
             {
-                inputSelection += " ";
+                inputSelection += "  ";
             }
 
             inputSelection += choices[i];
         }
 
-        return inputSelection;
+        return inputSelection + new string(' ', Console.WindowWidth - inputSelection.Length);
     }
 
-    public string GetImage(string filename)
+    public string GetImages(string filename, int amount)
     {
         var imagePath = gameData.IMAGEFILEPATH + filename;
         string image;
-        
+        if (imagePath == filename)
+        {
+            throw new FileNotFoundException(gameData.DIALOGUEFILEPATH);
+        }
+
         using (var sr = new StreamReader(imagePath))
         {
             var line = sr.ReadLine();
@@ -261,10 +314,36 @@ public class Battle
             }
 
             image = sr.ReadToEnd();
-            
+
         }
 
-        return image;
+        bool first = true;
+        string images = "";
+
+        for (int i = 0; i < amount; i++)
+        {
+            if (first)
+            {
+                images = image;
+                first = false;
+            }
+            else
+            {
+                string[] alreadyMade = images.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+                string[] toAdd = image.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+                var temp = "";
+                for (int j = 0; j < alreadyMade.Length; j++)
+                {
+                    temp += alreadyMade[i] + toAdd[i];
+                    if (j != alreadyMade.Length)
+                        temp += Environment.NewLine;
+                }
+
+                images = temp;
+            }
+        }
+
+        return images;
 
     }
 

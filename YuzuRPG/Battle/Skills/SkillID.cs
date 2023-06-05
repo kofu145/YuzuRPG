@@ -3,5 +3,5 @@
 public enum SkillID
 {
     SLASH = 0,
-    FIREBALL = 1,
+    BOUNCE = 1,
 }
