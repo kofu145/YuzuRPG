@@ -1,0 +1,69 @@
+[
+  {
+    "NAME": "Fiery Slime",
+    "CLASS": "Amorphous",
+    "ELEMENT": 0,
+    "IMAGE": "slime.yrpg",
+    "HP": 50,
+    "MANA": 1000,
+    "ATTACK": 30,
+    "DEFENSE": 40,
+    "MAGIC": 30,
+    "WISDOM": 50,
+    "SPEED": 40
+  },
+
+  {
+    "NAME": "Player",
+    "CLASS": "Swordsman",
+    "ELEMENT": 6,
+    "IMAGE": "swordlady.yrpg",
+    "HP": 70,
+    "MANA": 70,
+    "ATTACK": 80,
+    "DEFENSE": 50,
+    "MAGIC": 30,
+    "WISDOM": 50,
+    "SPEED": 50
+  },
+  {
+    "NAME": "Player",
+    "CLASS": "SwordsMaster",
+    "ELEMENT": 6,
+    "IMAGE": "swordlady.yrpg",
+    "HP": 100,
+    "MANA": 100,
+    "ATTACK": 110,
+    "DEFENSE": 80,
+    "MAGIC": 30,
+    "WISDOM": 80,
+    "SPEED": 100
+  },
+  
+  {
+    "NAME": "Cassandra",
+    "CLASS": "Mage",
+    "ELEMENT": 7,
+    "IMAGE": "swordlady.yrpg",
+    "HP": 80,
+    "MANA": 80,
+    "ATTACK": 20,
+    "DEFENSE": 50,
+    "MAGIC": 80,
+    "WISDOM": 50,
+    "SPEED": 40
+  },
+  {
+    "NAME": "Cassandra",
+    "CLASS": "ArchMage",
+    "ELEMENT": 7,
+    "IMAGE": "swordlady.yrpg",
+    "HP": 80,
+    "MANA": 130,
+    "ATTACK": 50,
+    "DEFENSE": 50,
+    "MAGIC": 110,
+    "WISDOM": 90,
+    "SPEED": 90
+  }
+]

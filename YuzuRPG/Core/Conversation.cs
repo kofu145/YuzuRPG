@@ -5,9 +5,11 @@ namespace YuzuRPG.Core;
 public class Conversation
 {
     private List<string> dialogue;
-    public Conversation(string dialogueFileName, GameData gameData)
+    private float divOffset;
+    public Conversation(string dialogueFileName, GameData gameData, float divOffset=2f)
     {
         dialogue = new List<string>();
+        this.divOffset = divOffset;
         using (var sr = new StreamReader(gameData.DIALOGUEFILEPATH + dialogueFileName + ".yrpgd"))
         {
             var line = sr.ReadLine();
@@ -26,9 +28,15 @@ public class Conversation
         
     }
 
+    public Conversation(string dialogueBuffer, float divOffset=1.5f)
+    {
+        dialogue = dialogueBuffer.Split(Environment.NewLine).ToList();
+        this.divOffset = divOffset;
+    }
+
     public void Render(GameData gameData)
     {
-        Console.SetCursorPosition(0, (int)(Console.WindowHeight/2));
+        Console.SetCursorPosition(0, (int)(Console.WindowHeight/divOffset));
 
         var textBox = "";
         for (int i = 0; i < dialogue.Count; i++)
@@ -44,7 +52,7 @@ public class Conversation
                 var toBorderWrap = Utils.ReplaceUpTo(displayLine, j + 1);
                 textBox = Utils.BorderWrapText(toBorderWrap, 2, gameData.DIALOGUECUTOFF, 4);
                 Console.Write(textBox);
-                Console.SetCursorPosition(0, (int)(Console.WindowHeight/2));
+                Console.SetCursorPosition(0, (int)(Console.WindowHeight/divOffset));
                 
 
                 

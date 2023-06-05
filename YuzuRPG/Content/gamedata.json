@@ -4,6 +4,7 @@
 	"PlayerStartY": 9,
 	"StartingMap": "New Dale Town",
 	"DialogueFilePath": "./Content/Dialogue/",
+	"ImageFilePath": "./Content/DotImages/",
 	"TextScrollSpeed": 10,
 	"CameraViewWidth": 80,
 	"CameraViewHeight": 20,

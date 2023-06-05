@@ -3,6 +3,8 @@ using System.Diagnostics;
 using Newtonsoft.Json;
 using YuzuRPG.Core.Audio;
 using System.Numerics;
+using YuzuRPG.Battle;
+using YuzuRPG.Battle.Skills;
 
 namespace YuzuRPG.Core
 {
@@ -10,44 +12,24 @@ namespace YuzuRPG.Core
 	{
         public readonly MapData mapData;
         public readonly GameData gameData;
+        public readonly BattleData battleData;
         public readonly List<Area> Areas;
         public int CurrentArea;
         private Player player;
         private Camera camera;
-        private AudioManager audioManager;
+        public AudioManager audioManager;
         private Transition transition;
         private Stopwatch stepTimer;
 
 		public Game(string basePath= @"./Content/")
-		{
-            string json;
-            using (var sr = new StreamReader(basePath + "mapdata.json"))
-            {
-                json = sr.ReadToEnd();
-                var data = JsonConvert.DeserializeObject<MapData>(json);
-
-                if (data != null)
-                {
-                    mapData = data;
-                }
-                else
-                    throw new InvalidDataException("Invalid Map Data file!");
-            }
-
-            using (var sr = new StreamReader(basePath + "gamedata.json"))
-            {
-                json = sr.ReadToEnd();
-                var data = JsonConvert.DeserializeObject<GameData>(json);
-                if (data != null)
-                {
-                    gameData = data;
-                }
-                else
-                    throw new InvalidDataException("Invalid Game Data file!");
-            }
+        {
+            mapData = DeserializeJson<MapData>(basePath + "mapdata.json");
+            gameData = DeserializeJson<GameData>(basePath + "gamedata.json");
+            battleData = DeserializeJson<BattleData>(basePath + "battledata.json");
+            battleData.ActorModels = DeserializeJson <List<ActorModel>>(basePath + "models.json");
             
             Areas = new List<Area>();
-            player = new Player(gameData.PLAYERSTARTX, gameData.PLAYERSTARTY, 'J');
+            player = new Player(gameData.PLAYERSTARTX, gameData.PLAYERSTARTY, 'J', battleData);
             camera = new Camera(player, gameData.CAMERAVIEWWIDTH, gameData.CAMERAVIEWHEIGHT);
             audioManager = new AudioManager(50);
             transition = new Transition(gameData.SCREENTRANSITIONSPEED, TransitionType.STRIPEDSIDEBYSIDE);
@@ -166,6 +148,21 @@ namespace YuzuRPG.Core
                     
                     break;
                 case EVENTFLAGS.BATTLE:
+                    Random random = new Random();
+                    if (random.Next(1, 50) < 25)
+                    {
+                        audioManager.StopMusic();
+                        audioManager.PlayMusic("Prepare for Battle!");
+                        transition.Render();
+                        List<Actor> enemies = new List<Actor>();
+                        enemies.Add(new Actor(battleData.ActorModels[0], random.Next(3,5)));
+                        enemies[0].Skills.Add(SkillID.SLASH);
+                        var battle = new Battle(player.Party, enemies, battleData, gameData);
+                        battle.Render();
+                        audioManager.StopMusic();
+                        audioManager.PlayMusic(Areas[CurrentArea].AudioTrack);
+                        transition.Render();
+                    } 
                     break;
             }
             
@@ -179,6 +176,25 @@ namespace YuzuRPG.Core
             }
 
             // post step check!
+        }
+
+        public T DeserializeJson<T>(string pathName)
+        {
+            string json;
+            T deserializeData;
+            using (var sr = new StreamReader(pathName))
+            {
+                json = sr.ReadToEnd();
+                var data = JsonConvert.DeserializeObject<T>(json);
+                if (data != null)
+                {
+                    deserializeData = data;
+                }
+                else
+                    throw new InvalidDataException($"Invalid Data file at {pathName}!");
+            }
+
+            return deserializeData;
         }
         
         

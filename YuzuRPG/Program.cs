@@ -46,8 +46,10 @@ class Program
         Console.WriteLine(title);
         Console.WriteLine("======================================================================");
         Console.WriteLine("Press enter to continue!");
-        Console.ReadLine();
         Game game = new Game();
+        game.audioManager.PlayMusic("Title Theme");
+        Console.ReadLine();
+        game.audioManager.StopMusic();
         game.Run();
 
     }
