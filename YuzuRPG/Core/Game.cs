@@ -67,11 +67,13 @@ namespace YuzuRPG.Core
                 //var renderWidth = Utils.CAMERAVIEWWIDTH < Console.WindowWidth ? Utils.CAMERAVIEWWIDTH : Console.WindowWidth;
                 //var renderHeight = Utils.CAMERAVIEWHEIGHT < Console.WindowHeight ? Utils.CAMERAVIEWHEIGHT : Console.WindowHeight;
 
-                camera.Width = Console.WindowWidth;
-                camera.Height = Console.WindowHeight - 10;
+                //camera.Width = Console.WindowWidth;
+                //camera.Height = Console.WindowHeight - 10;
                 Console.CursorVisible = false;
                 
                 Areas[CurrentArea].Render(mapData.Tiles, player, camera.GetRender(Areas[CurrentArea].Map), true);
+                
+                
                 if (stepTimer.Elapsed.Milliseconds > 1)
                 {
                     Utils.ClearConsoleKeyBuffer();
@@ -89,25 +91,28 @@ namespace YuzuRPG.Core
 
         public void SimBattle()
         {
-            if (random.Next(0, 100) < 20)
+            audioManager.StopMusic();
+            audioManager.PlayMusic("Prepare for Battle!");
+            transition.Render();
+            List<Actor> enemies = new List<Actor>();
+            // less than max btw, so 1, 3 is 1 to 2 enemies
+            var numEnemies = random.Next(1, 5);
+            for (int i = 0; i < numEnemies; i++)
             {
-                audioManager.StopMusic();
-                audioManager.PlayMusic("Prepare for Battle!");
-                transition.Render();
-                List<Actor> enemies = new List<Actor>();
-                // less than max btw, so 1, 3 is 1 to 2 enemies
-                var numEnemies = random.Next(1, 4);
-                for (int i = 0; i < numEnemies; i++)
-                {
-                    enemies.Add(new Actor(battleData.ActorModels[0], random.Next(3,6)));
-                    enemies[i].Skills.Add(SkillID.BOUNCE);
-                }
-                var battle = new Battle(player.Party, enemies, battleData, gameData);
-                battle.Render();
-                audioManager.StopMusic();
-                audioManager.PlayMusic(Areas[CurrentArea].AudioTrack);
-                transition.Render();
-            } 
+                enemies.Add(new Actor(battleData.ActorModels[0], random.Next(3,6)));
+                enemies[i].Skills.Add(SkillID.BOUNCE);
+            }
+            var battle = new Battle(player.Party, enemies, battleData, gameData);
+            battle.Render();
+            audioManager.StopMusic();
+            audioManager.PlayMusic(Areas[CurrentArea].AudioTrack);
+            transition.Render();
+            if (OperatingSystem.IsWindows())
+            {
+                //Console.SetWindowSize(width, height);
+            }
+            Console.Clear();
+
         }
 
         public void SimOverworldInput()
@@ -170,7 +175,19 @@ namespace YuzuRPG.Core
                 case EVENTFLAGS.BATTLE:
                     player.X += intent.X;
                     player.Y += intent.Y;
-                    SimBattle();
+                    if (random.Next(0, 100) < 20)
+                    {
+                        // this adds some slight lag. Maybe we can simbattle next frame in order to get player pos on battle?
+                        Areas[CurrentArea].Render(
+                            mapData.Tiles, 
+                            player, 
+                            camera.GetRender(Areas[CurrentArea].Map), 
+                            true
+                            );
+
+                        SimBattle();
+                    }
+
                     break;
                 case EVENTFLAGS.DEMOFLAG:
                     Console.Clear();

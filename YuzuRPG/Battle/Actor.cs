@@ -18,7 +18,7 @@ public class Actor
     public int Attack { get; private set; }
     public int Defense { get; private set; }
     public int Magic { get; private set; }
-    public int Wisdom { get; private set; }
+    public int Resist { get; private set; }
     public int Speed { get; private set; }
     
     public Actor(ActorModel actorBase, int level=5)
@@ -65,7 +65,7 @@ public class Actor
         Attack = CalculateStat(Level, ActorBase.Attack);
         Defense = CalculateStat(Level, ActorBase.Defense);
         Magic = CalculateStat(Level, ActorBase.Magic);
-        Wisdom = CalculateStat(Level, ActorBase.Wisdom);
+        Resist = CalculateStat(Level, ActorBase.Resist);
         Speed = CalculateStat(Level, ActorBase.Speed);
     }
 

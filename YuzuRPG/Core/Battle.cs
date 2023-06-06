@@ -1,4 +1,7 @@
-﻿using YuzuRPG.Battle;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
+using Pastel;
+using YuzuRPG.Battle;
 
 namespace YuzuRPG.Core;
 
@@ -13,10 +16,13 @@ public class Battle
         battleState = new BattleState(party, enemies, battleData);
         this.gameData = gameData;
         this.battleData = battleData;
+        Utils.ResizeForDefaultSize(false);
+
     }
 
     public void Render()
     {
+        
         var battling = true;
         while (battling)
         {
@@ -30,18 +36,22 @@ public class Battle
             // see it play out
             while (battleState.TurnState.Count > 0 && battling)
             {
-                battleState.AdvanceTurnState();
-                // print what is in buffer as if it were a conversation
-                List<string> dialogue = battleState.DialogueBuffer.Split(Environment.NewLine).ToList();
-
-                var battleDialogue = new Conversation(battleState.DialogueBuffer, 1.2f);
-                RenderBattleUI();
-                battleDialogue.Render(gameData);
-
-                battleState.DialogueBuffer = "";
+                var state = battleState.IsBattleOver();
                 Conversation endText;
-                switch (battleState.IsBattleOver())
+                switch (state)
                 {
+                    case BattleStates.ONGOING:
+                        battleState.AdvanceTurnState();
+                        // print what is in buffer as if it were a conversation
+                        List<string> dialogue = battleState.DialogueBuffer.Split(Environment.NewLine).ToList();
+
+                        var battleDialogue = new Conversation(battleState.DialogueBuffer, 1.2f, true, false);
+                        RenderBattleUI();
+                        battleDialogue.Render(gameData);
+
+                        battleState.DialogueBuffer = "";
+                        break;
+                    
                     case BattleStates.PLAYERWIN:
                         battling = false;
                         
@@ -65,7 +75,7 @@ public class Battle
                         RenderBattleUI();
 
                         endText = new Conversation("Your party defeated all the enemies!",
-                            1.2f, false);
+                            1.2f, false, false);
                         endText.Render(gameData);
                         break;
                     
@@ -73,18 +83,19 @@ public class Battle
                         battling = false;
                         RenderBattleUI();
                         endText = new Conversation("Your party was defeated!",
-                            1.2f, false);
+                            1.2f, false, false);
                         endText.Render(gameData);
                         break;
                     
                     case BattleStates.PLAYERRUN:
                         battling = false;
                         RenderBattleUI();
-                        endText = new Conversation("You ran away!", 1.2f, false);
+                        endText = new Conversation("You ran away!", 1.2f, false, false);
                         endText.Render(gameData);
                         break;
                     
                 }
+                
             }
         }
     }
@@ -100,16 +111,24 @@ public class Battle
         var exampleString = @"Slime\nLevel 5\n#####-----";
         // then just wrap this into Utils.BorderTextWrap();
 
-        
         // creating enemy boxes
         var boxes = ConstructBoxes(battleState.Enemies);
-        RenderBoxesWithColor(boxes);
 
         // currently can't concatenate everything correctly, so rendering one for now, even for multiple
-        var image = GetImages(battleState.Enemies[0].ActorBase.Image, 1);//battleState.Enemies.Count);
-        Console.WriteLine(image);
-        Console.WriteLine(new string('=', Console.WindowWidth - 1));
+        var image = GetImages(battleState.Enemies[0].ActorBase.Image, battleState.Enemies.Count);
         var partyBoxes = ConstructBoxes(battleState.Party);
+        var width = Math.Max(image.Split(Environment.NewLine).First().Length,
+            boxes.Split(Environment.NewLine).First().Length);
+        
+        if (OperatingSystem.IsWindows() && Console.WindowWidth < width)
+        {
+            // doing this leads to VERY wonky behavior after going back to overworld
+            //Console.SetWindowSize(width, Console.WindowHeight);
+        }
+        
+        RenderBoxesWithColor(boxes);
+        Console.Write(image);
+        Console.WriteLine(new string('=', Console.WindowWidth - 1 > 0 ? Console.WindowWidth - 1 : 0));
         RenderBoxesWithColor(partyBoxes);
         
 
@@ -118,6 +137,7 @@ public class Battle
     public void GetBattleInputs(int cursorTopStart)
     {
         Utils.ClearConsoleKeyBuffer();
+        
         for (int actorId=0; actorId<battleState.Party.Count; actorId++)
         {
             Actor actor = battleState.Party[actorId];
@@ -151,7 +171,11 @@ public class Battle
                         choosing = false;
                         break;
                     case 2:
-                        battleState.State = BattleStates.PLAYERRUN;
+                        var run = battleState.random.Next(0, 100) < 80;
+                        if (run)
+                            battleState.State = BattleStates.PLAYERRUN;
+                        else
+                            battleState.DialogueBuffer += "Your party tried to run, but failed!" + Environment.NewLine;
                         choosing = false;
                         break;
                 }
@@ -172,7 +196,9 @@ public class Battle
         {
             var boxString = member.Name + Environment.NewLine;
             boxString += $"Level {member.Level} " + Environment.NewLine;
-            boxString += $"Element: {member.Element.ToString()}" + Environment.NewLine;
+            boxString += $"Element:   " + 
+                         $"{member.Element.ToString()}" + 
+                         Environment.NewLine;
             // calculate HP string based on thing
             //int HPChars = Utils.RescaleNormal(member.HP, 0, member.MaxHP, 0, 20);
             int HPChars = (int)Math.Round(member.HP / (float)member.MaxHP * 14);
@@ -188,7 +214,7 @@ public class Battle
             }
             HPBar = $"|{HPBar}| ({member.HP}/{member.MaxHP})";
             boxString += HPBar;
-            boxString = Utils.BorderWrapText(boxString, 2, HPBar.Length + 2, 4);
+            boxString = Utils.BorderWrapText(boxString, 1, HPBar.Length + 2, 4, true);
             if (first)
             {
                 boxes = boxString += Environment.NewLine;
@@ -208,15 +234,39 @@ public class Battle
             }
         }
 
-        return boxes;
+        string finalBox = "";
+        foreach (var str in boxes.Split(Environment.NewLine))
+        {
+            var count = Console.WindowWidth - str.Length - 1;
+            finalBox += str + new string(' ', count > 0 ? count : 0) + Environment.NewLine;
+        }
+
+        return finalBox;
     }
 
     private void RenderBoxesWithColor(string box)
     {
         string[] toPrint = box.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+        var count = 0;
         foreach (var str in toPrint)
         {
-            foreach (var ch in str)
+            count++;
+            var printing = str;
+            var textColorWords = str.Split(" ");
+            for (int i=0; i<textColorWords.Length; i++)
+            {
+                if (battleData.ElementsStrings.Contains(textColorWords[i]))
+                {
+                    var color = battleData.ElementToColor[battleData.ElementsStrings.IndexOf(textColorWords[i])];
+                    string result = Regex.Replace(str,
+                        @$"  {textColorWords[i]}\b",
+                        " ".PastelBg(color) + $" {textColorWords[i]}".Pastel(color)
+                        );
+
+                    printing = result;
+                }
+            }
+            foreach (var ch in printing)
             {
                 if (ch == '#')
                 {
@@ -229,7 +279,8 @@ public class Battle
                     Console.Write(ch);
                 }
             }
-            Console.WriteLine();
+            if (count < toPrint.Length)
+                Console.WriteLine();
         }
     }
 
@@ -242,8 +293,10 @@ public class Battle
             Console.SetCursorPosition(0, cursorTopStart);
 
             var inputSelection = ConstructInputPrompts(selections, currChoice);
-            Console.WriteLine(inputSelection);
-                
+            var count = Console.WindowWidth - inputSelection.Length;
+            Console.WriteLine(inputSelection + new string(' ', count > 0 ? count : 0));
+            Console.Write(new string('=', Console.WindowWidth - 1 > 0 ? Console.WindowWidth - 1 : 0));
+
             ConsoleKeyInfo input = Console.ReadKey(true);
             var tuple = SelectionInput(input, currChoice, selections.Count);
             choosingPrompt = tuple.Item1;
@@ -293,7 +346,8 @@ public class Battle
             inputSelection += choices[i];
         }
 
-        return inputSelection + new string(' ', Console.WindowWidth - inputSelection.Length);
+        return inputSelection + new string(' ', 
+            Console.WindowWidth - inputSelection.Length > 0 ? Console.WindowWidth - inputSelection.Length : 0);
     }
 
     public string GetImages(string filename, int amount)
@@ -332,18 +386,25 @@ public class Battle
                 string[] alreadyMade = images.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
                 string[] toAdd = image.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
                 var temp = "";
-                for (int j = 0; j < alreadyMade.Length; j++)
+                for (int j = 0; j < toAdd.Length; j++)
                 {
-                    temp += alreadyMade[i] + toAdd[i];
-                    if (j != alreadyMade.Length)
+                    temp += alreadyMade[j] + toAdd[j];
+                    if (j < toAdd.Length - 1)
                         temp += Environment.NewLine;
                 }
 
                 images = temp;
             }
         }
-
-        return images;
+        
+        string finalImage = "";
+        foreach (var str in images.Split(Environment.NewLine))
+        {
+            var count = Console.WindowWidth - images.Split(Environment.NewLine).Last().Length;
+            finalImage += str + new string(' ', count > 0 ? count : 0) + Environment.NewLine;
+        }
+        
+        return finalImage;
 
     }
 

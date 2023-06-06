@@ -1,10 +1,12 @@
-﻿using System.Text;
+﻿using System.Runtime.InteropServices;
+using System.Text;
 using YuzuRPG.Core;
 
 namespace YuzuRPG;
 
 class Program
 {
+    
     static void Main(string[] args)
     {
         Console.OutputEncoding = Encoding.UTF8;
@@ -39,6 +41,7 @@ class Program
     |_| \__,_/___|\__,_|_|  \_\_|     \_____|
 ";
 
+        Utils.ResizeForDefaultSize(true);
         menu = File.ReadAllText(@"./Content/DotImages/swordlady.yrpg");
 
         Console.WriteLine(menu);
@@ -47,9 +50,12 @@ class Program
         Console.WriteLine("======================================================================");
         Console.WriteLine("Press enter to continue!");
         Game game = new Game();
+        Console.BackgroundColor = ConsoleColor.Black;
+        Console.ResetColor();
         game.audioManager.PlayMusic("Title Theme");
         Console.ReadLine();
         game.audioManager.StopMusic();
+        Utils.ResizeForDefaultSize(false);
         game.Run();
 
     }

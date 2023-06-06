@@ -9,7 +9,7 @@
     "ATTACK": 30,
     "DEFENSE": 40,
     "MAGIC": 30,
-    "WISDOM": 50,
+    "RESIST": 50,
     "SPEED": 40
   },
 
@@ -23,7 +23,7 @@
     "ATTACK": 80,
     "DEFENSE": 50,
     "MAGIC": 30,
-    "WISDOM": 50,
+    "RESIST": 50,
     "SPEED": 50
   },
   {
@@ -36,7 +36,7 @@
     "ATTACK": 110,
     "DEFENSE": 80,
     "MAGIC": 30,
-    "WISDOM": 80,
+    "RESIST": 80,
     "SPEED": 100
   },
   
@@ -50,7 +50,7 @@
     "ATTACK": 20,
     "DEFENSE": 50,
     "MAGIC": 80,
-    "WISDOM": 50,
+    "RESIST": 50,
     "SPEED": 40
   },
   {
@@ -63,7 +63,7 @@
     "ATTACK": 50,
     "DEFENSE": 50,
     "MAGIC": 110,
-    "WISDOM": 90,
+    "RESIST": 90,
     "SPEED": 90
   }
 ]

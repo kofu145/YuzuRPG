@@ -15,7 +15,7 @@ public class BattleState
     public List<Actor> Party;
     public List<Actor> Enemies;
     private BattleData battleData;
-    private Random random;
+    public Random random;
     public PriorityQueue<ActionInfo, int> TurnState;
     public BattleStates State;
     public string DialogueBuffer;
@@ -34,6 +34,8 @@ public class BattleState
 
     public void AdvanceTurnState()
     {
+        Enemies.RemoveAll(s => s.HP <= 0);
+
         var action = TurnState.Dequeue();
         if (action.Parent.HP > 0)
             action.Skill.Perform(this, action.Parent, action.Targets);
@@ -77,10 +79,13 @@ public class BattleState
                 enemyWin = false;
         }
 
-        foreach (var member in Enemies)
+        if (Enemies.Count > 0)
         {
-            if (member.HP > 0)
-                playerWin = false;
+            foreach (var member in Enemies)
+            {
+                if (member.HP > 0)
+                    playerWin = false;
+            }
         }
 
         if (playerWin)

@@ -11,6 +11,6 @@ public class ActorModel
     public int Attack;
     public int Defense;
     public int Magic;
-    public int Wisdom;
+    public int Resist;
     public int Speed;
 }

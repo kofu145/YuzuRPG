@@ -180,7 +180,7 @@ namespace YuzuRPG.Core
 					
 				}
 				// this is needed if we're ever using default values, keep note
-				//Console.WriteLine();
+				Console.WriteLine();
 			}
             Console.WriteLine(new string('=', Console.WindowWidth));
 			Console.WriteLine($"Position: {player.X}, {player.Y}" + new string(' ', Console.WindowWidth / 2));

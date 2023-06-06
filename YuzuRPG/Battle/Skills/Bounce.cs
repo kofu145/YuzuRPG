@@ -16,18 +16,8 @@ public class Bounce : Skill
 
     public override void Perform(BattleState battleState, Actor source, List<Actor> targets)
     {
-        var prevHp = targets[0].HP;
-        DoDamage(source, targets[0]);
+        DoDamage(battleState, source, targets[0]);
         PayMana(source);
-        battleState.DialogueBuffer += $"{source.Name} used {Name} on {targets[0].Name}!" + Environment.NewLine;
-        if (targets[0].HP == prevHp)
-        {
-            battleState.DialogueBuffer += $"{source.Name} missed!!" + Environment.NewLine;
-        }
-        if (battleData.TypeModifiers[(int)Element][(int)targets[0].Element] == .5f)
-            battleState.DialogueBuffer += $"{Name} was not very effective!" + Environment.NewLine;
-        else if (battleData.TypeModifiers[(int)Element][(int)targets[0].Element] == 2f)
-            battleState.DialogueBuffer += $"{Name} was very effective!" + Environment.NewLine;
     }
 
     

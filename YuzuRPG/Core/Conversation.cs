@@ -7,11 +7,13 @@ public class Conversation
     private List<string> dialogue;
     private float divOffset;
     private bool blocking;
-    public Conversation(string dialogueFileName, GameData gameData, float divOffset=2f, bool blocking=true)
+    private bool clear;
+    public Conversation(string dialogueFileName, GameData gameData, float divOffset=2f, bool blocking=true, bool clear=true)
     {
         dialogue = new List<string>();
         this.divOffset = divOffset;
         this.blocking = blocking;
+        this.clear = clear;
         using (var sr = new StreamReader(gameData.DIALOGUEFILEPATH + dialogueFileName + ".yrpgd"))
         {
             var line = sr.ReadLine();
@@ -30,10 +32,11 @@ public class Conversation
         
     }
 
-    public Conversation(string dialogueBuffer, float divOffset=1.5f, bool blocking=true)
+    public Conversation(string dialogueBuffer, float divOffset = 1.5f, bool blocking = true, bool clear = true)
     {
         dialogue = dialogueBuffer.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).ToList();
         this.blocking = blocking;
+        this.clear = clear;
         this.divOffset = divOffset;
     }
 
@@ -72,7 +75,7 @@ public class Conversation
             }
             
         }
-        if (blocking)
+        if (clear)
             Console.Clear();
     }
 }

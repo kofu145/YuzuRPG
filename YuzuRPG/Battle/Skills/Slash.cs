@@ -16,21 +16,9 @@ public class Slash : Skill
 
     public override void Perform(BattleState battleState, Actor source, List<Actor> targets)
     {
-        var prevHp = targets[0].HP;
-        DoDamage(source, targets[0]);
+        DoDamage(battleState, source, targets[0]);
         PayMana(source);
-        battleState.DialogueBuffer += $"{source.Name} used Slash on {targets[0].Name}!" + Environment.NewLine;
-        if (targets[0].HP == prevHp)
-        {
-            battleState.DialogueBuffer += $"{source.Name} missed!!" + Environment.NewLine;
-        }
-        else
-        {
-            if (battleData.TypeModifiers[(int)Element][(int)targets[0].Element] == .5f)
-                battleState.DialogueBuffer += "Slash was not very effective!" + Environment.NewLine;
-            else if (battleData.TypeModifiers[(int)Element][(int)targets[0].Element] == 2f)
-                battleState.DialogueBuffer += "Slash was very effective!" + Environment.NewLine;
-        }
+        
         
     }
 

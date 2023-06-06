@@ -32,7 +32,7 @@ public abstract class Skill : ISkill
     
     public abstract void Perform(BattleState battleState, Actor source, List<Actor> targets);
     
-    protected void DoDamage(Actor source, Actor target)
+    protected void DoDamage(BattleState battleState, Actor source, Actor target)
     {
         int attack;
         int defense;
@@ -57,9 +57,22 @@ public abstract class Skill : ISkill
         // STAB
         damage = Element == source.Element ? (int)Math.Round(damage * 1.5) : damage;
 
-        if (random.Next(0, 100) < Accuracy)
+        var accCheck = random.Next(0, 100) < Accuracy;
+        
+        if (accCheck)
             target.HP -= (int)Math.Round(damage);
         //Console.WriteLine($"Slash is attacking: {target.Name} ({damage} damage to make {target.HP} hp)");
+        
+        if (accCheck)
+            battleState.DialogueBuffer += $"{source.Name} used Slash on {target.Name}!" + Environment.NewLine;
+        else if (!accCheck)
+            battleState.DialogueBuffer += $"{source.Name} used Slash on {target.Name}, but missed!!" + Environment.NewLine;
+        
+        if (battleData.TypeModifiers[(int)Element][(int)target.Element] == .5f)
+            battleState.DialogueBuffer += $"{Name} was not very effective!" + Environment.NewLine;
+        else if (battleData.TypeModifiers[(int)Element][(int)target.Element] == 2f)
+            battleState.DialogueBuffer += $"{Name} was very effective!" + Environment.NewLine;
+        
     }
 
     protected void PayMana(Actor source)
