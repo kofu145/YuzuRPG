@@ -3,7 +3,7 @@ using NAudio.Wave;
 
 namespace YuzuRPG.Core.Audio;
 
-public class AudioManager
+public class AudioManager : IAudioManager
 {
     private CancellationTokenSource musicTokenSource;
     private Thread musicThread;

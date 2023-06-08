@@ -5,7 +5,7 @@ namespace YuzuRPG.Core.Audio;
 /// <summary>
 /// Stream for looping playback
 /// </summary>
-public class LoopStream : WaveStream
+public class LoopStream : WaveStream, IWaveProvider
 {
     WaveStream sourceStream;
 

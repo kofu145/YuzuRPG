@@ -10,6 +10,14 @@
 
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
   <ItemGroup>
         <Content Include="Content\**">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -19,5 +27,6 @@
       <PackageReference Include="NAudio" Version="2.1.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="Pastel" Version="4.1.0" />
+      <PackageReference Include="XamarinMac" Version="1.0.0" />
     </ItemGroup>
 </Project>

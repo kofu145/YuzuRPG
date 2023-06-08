@@ -17,7 +17,7 @@ namespace YuzuRPG.Core
         public int CurrentArea;
         private Player player;
         private Camera camera;
-        public AudioManager audioManager;
+        public IAudioManager audioManager;
         private Transition transition;
         private Stopwatch stepTimer;
         private Random random;
@@ -33,7 +33,10 @@ namespace YuzuRPG.Core
             Areas = new List<Area>();
             player = new Player(gameData.PLAYERSTARTX, gameData.PLAYERSTARTY, 'J', battleData);
             camera = new Camera(player, gameData.CAMERAVIEWWIDTH, gameData.CAMERAVIEWHEIGHT);
-            audioManager = new AudioManager(50);
+            if (OperatingSystem.IsWindows())
+                audioManager = new AudioManager(50);
+            if (OperatingSystem.IsMacOS())
+                audioManager = new MacAudioManager(50);
             transition = new Transition(gameData.SCREENTRANSITIONSPEED, TransitionType.STRIPEDSIDEBYSIDE);
             stepTimer = new Stopwatch();
 
