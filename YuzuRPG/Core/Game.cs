@@ -36,7 +36,7 @@ namespace YuzuRPG.Core
             if (OperatingSystem.IsWindows())
                 audioManager = new AudioManager(50);
             if (OperatingSystem.IsMacOS())
-                audioManager = new MacAudioManager(50);
+                audioManager = new CSCoreAudioManager(50);
             transition = new Transition(gameData.SCREENTRANSITIONSPEED, TransitionType.STRIPEDSIDEBYSIDE);
             stepTimer = new Stopwatch();
 

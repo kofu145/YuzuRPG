@@ -24,6 +24,8 @@
         </Content>
     </ItemGroup>
     <ItemGroup>
+      <PackageReference Include="Bassoon" Version="1.1.2" />
+      <PackageReference Include="CSCore" Version="1.2.1.2" />
       <PackageReference Include="NAudio" Version="2.1.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="Pastel" Version="4.1.0" />
