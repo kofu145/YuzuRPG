@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Diagnostics;
-using NAudio.Wave;
+using Pie.Audio;
 
 namespace YuzuRPG.Core.Audio
 {
-	public class MacAudioManager : IAudioManager
+	public class MacAudioManager : IAudioManager, IDisposable
 	{ 
         private CancellationTokenSource musicTokenSource;
         private Thread musicThread;
         public float Volume;
+        private AudioDevice device;
+        private AudioBuffer currentBuffer;
         
         public MacAudioManager(float volume)
         {
             Volume = volume / 100;
+            device = new AudioDevice(48000, 256);
         }
 
         public void PlayMusic(string audioTrack)
@@ -44,79 +47,63 @@ namespace YuzuRPG.Core.Audio
             if (!File.Exists(introTrack))
             {
                 // doing all these using calls so I don't have to manually dispose later lol
+
+                PCM pcm = PCM.LoadWav(mainTrack);
+                AudioBuffer buffer = device.CreateBuffer(new BufferDescription(DataType.Pcm, pcm.Format), pcm.Data);
+
+                device.PlayBuffer(buffer, 0, new ChannelProperties(volume: Volume, speed: 1.0, looping: false));
                 
-                using(var audioMainFile = new AudioFileReader(mainTrack))
-                using (var loopStream = new LoopStream(audioMainFile))
-                using (var outputMainDevice = new AVAudioEngineOut())
+                while (!token.IsCancellationRequested)
                 {
-                    if (audioMainFile == null)
-                        throw new NullReferenceException("audiomainfile null");
-
-                    if (loopStream.WaveFormat == null)
-                        throw new NullReferenceException("loop sream null");
-                    Console.WriteLine(loopStream.Length);
-                    outputMainDevice.Volume = Volume;
-                    // super slight delay at the end to sound a bit better(?)
-                    outputMainDevice.Init(loopStream);
-                    outputMainDevice.Play();
-
-                    while (!token.IsCancellationRequested)
-                    {
-                        Thread.Sleep(10);
-                    }
+                    Thread.Sleep(10);
                 }
+                device.DeleteBuffer(buffer);
+
             }
 
             else
             {
-                // doing all these using calls so I don't have to manually dispose later lol
 
-                using(var audioFile = new WaveFileReader(introTrack))
-                using(var audioMainFile = new WaveFileReader(mainTrack))
-                using (var loopStream = new LoopStream(audioMainFile))
-                using (var outputMainDevice = new AVAudioEngineOut())
-                using(var outputDevice = new AVAudioEngineOut())
+                PCM introPCM = PCM.LoadWav(introTrack);
+                PCM mainPCM = PCM.LoadWav(mainTrack);
+
+                AudioBuffer introBuffer = device.CreateBuffer(new BufferDescription(DataType.Pcm, introPCM.Format), introPCM.Data);
+                AudioBuffer mainBuffer = device.CreateBuffer(new BufferDescription(DataType.Pcm, mainPCM.Format), mainPCM.Data);
+                device.PlayBuffer(introBuffer, 0, new ChannelProperties(volume: Volume, speed: 1.0, looping: false));
+                device.QueueBuffer(mainBuffer, 0);
+
+                device.BufferFinished += (system, channel, buffer) =>
+                    system.SetChannelProperties(channel, new ChannelProperties(volume: Volume, speed: 1.0, looping: false));
+                while (!token.IsCancellationRequested)
                 {
-                    outputDevice.Volume = Volume;
-                    outputMainDevice.Volume = Volume;
-                    // super slight delay at the end to sound a bit better(?)
-                    outputDevice.Init(audioFile);
-                    outputMainDevice.Init(loopStream);
-                    outputDevice.Play();
-                    timer.Start();
-
-                    while (!token.IsCancellationRequested)
-                    {
-                        // we're using a timer because both the StoppedPlayback event and checking WaveOutEvent.PlaybackState
-                        // have a slight delay
-                        if (timer.Elapsed > audioFile.TotalTime)
-                        {
-                            outputMainDevice.Play();
-                            timer.Reset();
-                        }
-                    }
-                
+                    Thread.Sleep(10);
                 }
+                device.DeleteBuffer(introBuffer);
+                device.DeleteBuffer(mainBuffer);
+
             }
+
 
             if (File.Exists(endTrack))
             {
-                using(var audioMainFile = new AudioFileReader(endTrack))
-                using (var outputMainDevice = new AVAudioEngineOut())
-                {
-                    outputMainDevice.Volume = Volume;
-                    // super slight delay at the end to sound a bit better(?)
-                    outputMainDevice.Init(audioMainFile);
-                    outputMainDevice.Play();
+                PCM pcm = PCM.LoadWav(mainTrack);
+                AudioBuffer buffer = device.CreateBuffer(new BufferDescription(DataType.Pcm, pcm.Format), pcm.Data);
 
-                    while (outputMainDevice.PlaybackState == PlaybackState.Playing)
-                    {
-                        Thread.Sleep(10);
-                    }
+                device.PlayBuffer(buffer, 0, new ChannelProperties(volume: Volume, speed: 1.0, looping: false));
+                
+                while (device.IsPlaying(0))
+                {
+                    Thread.Sleep(10);
                 }
+                device.DeleteBuffer(buffer);
             }
             
             // cleanup!
+        }
+
+        public void Dispose()
+        {
+            device.Dispose();
         }
 	}
 }
