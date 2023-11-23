@@ -16,6 +16,13 @@
 			"63,0": ["Derweg Pass", "15,43"],
 
 			"30,8": ["New Dale Town House 1", "4,4"],
+			"10,8": ["New Dale Town House 2", "4,5"],
+			"14,8": ["New Dale Town House 2", "8,5"],
+
+			"76,19": ["New Dale Town Hall","6,7"],
+			"77,19": ["New Dale Town Hall","7,7"],
+			"78,19": ["New Dale Town Hall","8,7"],
+			
 			"50,8": ["Player House", "7,4"]
 		},
 		"Derweg Pass": {
@@ -27,6 +34,16 @@
 		},
 		"New Dale Town House 1": {
 			"4,5": ["New Dale Town", "30,9"]
+		},
+		"New Dale Town House 2": {
+			"4,6": ["New Dale Town", "10,9"],
+			"8,6": ["New Dale Town", "14,9"]
+		},
+		
+		"New Dale Town Hall": {
+			"6,8": ["New Dale Town","76,20"],
+			"7,8": ["New Dale Town","77,20"],
+			"8,8": ["New Dale Town","78,20"]
 		},
 		"Player House": {
 			"7,5": ["New Dale Town", "50,9"]

@@ -108,7 +108,7 @@ public class Battle
     {
         Console.SetCursorPosition(0, 0);
         // goal: create boxes on top, print the enemy sprite, then boxes for player, then input options
-        var exampleString = @"Slime\nLevel 5\n#####-----";
+        // var exampleString = @"Slime\nLevel 5\n#####-----";
         // then just wrap this into Utils.BorderTextWrap();
 
         // creating enemy boxes
@@ -119,11 +119,16 @@ public class Battle
         var partyBoxes = ConstructBoxes(battleState.Party);
         var width = Math.Max(image.Split(Environment.NewLine).First().Length,
             boxes.Split(Environment.NewLine).First().Length);
+
+        var height = boxes.Split(Environment.NewLine).Length
+                     + image.Split(Environment.NewLine).Length
+                     + partyBoxes.Split(Environment.NewLine).Length
+                     + 2; // 2 being the separator lines between images and bottom
         
         if (OperatingSystem.IsWindows() && Console.WindowWidth < width)
         {
-            // doing this leads to VERY wonky behavior after going back to overworld
-            //Console.SetWindowSize(width, Console.WindowHeight);
+            // doing this leads to VERY wonky behavior after going back to overworld (if on full win size)
+            Console.SetWindowSize(width, height); //Console.WindowHeight);
         }
         
         RenderBoxesWithColor(boxes);

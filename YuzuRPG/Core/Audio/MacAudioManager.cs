@@ -10,7 +10,6 @@ namespace YuzuRPG.Core.Audio
         private Thread musicThread;
         public float Volume;
         private AudioDevice device;
-        private AudioBuffer currentBuffer;
         
         public MacAudioManager(float volume)
         {

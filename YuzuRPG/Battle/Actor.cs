@@ -20,7 +20,9 @@ public class Actor
     public int Magic { get; private set; }
     public int Resist { get; private set; }
     public int Speed { get; private set; }
-    
+
+    private Dictionary<string, int> modifiers;
+
     public Actor(ActorModel actorBase, int level=5)
     {
         ActorBase = actorBase;
@@ -33,6 +35,7 @@ public class Actor
         HP = MaxHP;
         Mana = MaxMana;
         Skills = new List<SkillID>();
+        ResetModifiers();
     }
 
     public bool AddEXP(int exp)
@@ -81,5 +84,41 @@ public class Actor
     {
         // TODO: this shit
         return (4 * (level^ 3)) / 5;
+    }
+
+    public void IncrementModifier(string stat, int stages)
+    {
+        if (modifiers[stat] + stages > 4)
+            modifiers[stat] = 4;
+        else if (modifiers[stat] + stages < -4)
+            modifiers[stat] = -4;
+        else
+            modifiers[stat] += stages;
+    }
+
+    public void ResetModifiers()
+    {
+        modifiers = new Dictionary<string, int>()
+        {
+            { "Attack", 0 },
+            { "Defense", 0 },
+            { "Magic", 0 },
+            { "Resist", 0 },
+            { "Speed", 0 },
+        };
+    }
+
+    public double GetModifier(string stat)
+    {
+        double baseNum = 4;
+        double baseDenom = 4;
+
+        if (modifiers[stat] > 0)
+            baseNum += modifiers[stat];
+        if (modifiers[stat] < 0)
+            // -= so that subtracting the negative adds to the value
+            baseDenom -= modifiers[stat];
+
+        return baseNum / baseDenom;
     }
 }

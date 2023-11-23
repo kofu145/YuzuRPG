@@ -32,22 +32,22 @@ public abstract class Skill : ISkill
     
     public abstract void Perform(BattleState battleState, Actor source, List<Actor> targets);
     
-    protected void DoDamage(BattleState battleState, Actor source, Actor target)
+    protected void DoDamage(BattleState battleState, Actor source, Actor target, bool accCheck)
     {
-        int attack;
-        int defense;
+        int attack = 0;
+        int defense = 0;
         if (SkillType == AttackType.Physical)
         {
-            attack = source.Attack;
-            defense = target.Defense;
+            attack = (int)Math.Round(source.Attack * source.GetModifier("Attack"));
+            defense = (int)Math.Round(target.Defense * target.GetModifier("Defense"));
         }
         if (SkillType == AttackType.Magical)
         {
-            attack = source.Magic;
-            defense = target.Defense;
+            attack = (int)Math.Round(source.Magic * source.GetModifier("Magic"));
+            defense = (int)Math.Round(target.Resist * target.GetModifier("Resist"));
         }
 
-        var damage = ((((float)source.Level / 5)) * Power * (source.Attack / (float)target.Defense)) / 100 + 3;
+        var damage = ((((float)source.Level / 5)) * Power * (attack / (float)defense)) / 100 + 3;
         // random
         damage = (int)Math.Round(damage * random.Next(85, 100) / 100);
         
@@ -56,17 +56,9 @@ public abstract class Skill : ISkill
         
         // STAB
         damage = Element == source.Element ? (int)Math.Round(damage * 1.5) : damage;
-
-        var accCheck = random.Next(0, 100) < Accuracy;
         
         if (accCheck)
             target.HP -= (int)Math.Round(damage);
-        //Console.WriteLine($"Slash is attacking: {target.Name} ({damage} damage to make {target.HP} hp)");
-        
-        if (accCheck)
-            battleState.DialogueBuffer += $"{source.Name} used Slash on {target.Name}!" + Environment.NewLine;
-        else if (!accCheck)
-            battleState.DialogueBuffer += $"{source.Name} used Slash on {target.Name}, but missed!!" + Environment.NewLine;
         
         if (battleData.TypeModifiers[(int)Element][(int)target.Element] == .5f)
             battleState.DialogueBuffer += $"{Name} was not very effective!" + Environment.NewLine;
@@ -75,8 +67,47 @@ public abstract class Skill : ISkill
         
     }
 
-    protected void PayMana(Actor source)
+    // here in case we need it out in the regular logic, also acccheck is a param in the other functions so that
+    // a stat mod and dodamage can share the same acc
+    protected bool AccCheck(BattleState battleState, Actor source, Actor target)
     {
-        source.Mana -= ManaCost;
+        var accCheck = random.Next(0, 100) < Accuracy;
+        
+        if (accCheck && source != target)
+            battleState.DialogueBuffer += $"{source.Name} used {Name} on {target.Name}!" + Environment.NewLine;
+        else if (accCheck && source == target)
+            battleState.DialogueBuffer += $"{source.Name} used {Name}!" + Environment.NewLine;
+        else if (!accCheck && source != target)
+            battleState.DialogueBuffer +=
+                $"{source.Name} used {Name} on {target.Name}, but missed!!" + Environment.NewLine;
+        else
+            battleState.DialogueBuffer += 
+                $"{source.Name} used {Name}, but it failed!!" + Environment.NewLine;
+
+        return accCheck;
+    }
+
+    protected void ModStat(BattleState battleState, Actor target, string stat, int stages)
+    {
+        var modifiedDialogue = "";
+
+        target.IncrementModifier(stat, stages);
+
+        if (stages > 0)
+            modifiedDialogue = "raised";
+        else
+            modifiedDialogue = "decreased";
+
+        battleState.DialogueBuffer +=
+            $"{target.Name}'s {stat} was {modifiedDialogue} by {stages} stages!" + Environment.NewLine;
+
+    }
+
+    protected bool PayMana(Actor source)
+    {
+        if (source.Mana > ManaCost)
+            source.Mana -= ManaCost;
+
+        return source.Mana > ManaCost;
     }
 }

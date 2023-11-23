@@ -4,16 +4,19 @@ namespace YuzuRPG.Core;
 
 public class Conversation
 {
+    private GameData gameData;
     private List<string> dialogue;
     private float divOffset;
     private bool blocking;
     private bool clear;
-    public Conversation(string dialogueFileName, GameData gameData, float divOffset=2f, bool blocking=true, bool clear=true)
+    
+    public Conversation(string dialogueFileName, GameData gameData, float divOffset=1.3f, bool blocking=true, bool clear=true)
     {
         dialogue = new List<string>();
         this.divOffset = divOffset;
         this.blocking = blocking;
         this.clear = clear;
+        this.gameData = gameData;
         using (var sr = new StreamReader(gameData.DIALOGUEFILEPATH + dialogueFileName + ".yrpgd"))
         {
             var line = sr.ReadLine();
@@ -42,6 +45,10 @@ public class Conversation
 
     public void Render(GameData gameData)
     {
+        string img = GetNPCImage("priestess.yrpg");
+        Console.SetCursorPosition(0, 0);
+        Console.Write(img);
+        
         Console.SetCursorPosition(0, (int)(Console.WindowHeight/divOffset));
 
         var textBox = "";
@@ -77,5 +84,43 @@ public class Conversation
         }
         if (clear)
             Console.Clear();
+    }
+
+    public string GetNPCImage(string filename)
+    {
+        var imagePath = gameData.IMAGEFILEPATH + filename;
+        string image;
+        if (imagePath == filename)
+        {
+            throw new FileNotFoundException(gameData.DIALOGUEFILEPATH);
+        }
+
+        using (var sr = new StreamReader(imagePath))
+        {
+            var line = sr.ReadLine();
+            if (line != "Image")
+            {
+                throw new InvalidDataException("Invalid yrpg image file!");
+            }
+
+            image = sr.ReadToEnd();
+
+        }
+
+        var imgCutoff = 25;
+
+        // only get cutoff (first 25 lines of the image)
+        string retImg = "";
+        var imgArr = image.Split(Environment.NewLine);
+        if (imgArr.Length > imgCutoff)
+        {
+            for (int i = 0; i<imgCutoff; i++)
+            {
+                retImg += imgArr[i];
+                retImg += Environment.NewLine;
+            }
+        }
+
+        return retImg;
     }
 }

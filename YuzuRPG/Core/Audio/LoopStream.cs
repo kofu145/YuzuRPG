@@ -64,6 +64,7 @@ public class LoopStream : WaveStream, IWaveProvider
                     // something wrong with the source stream
                     break;
                 }
+
                 // loop
                 sourceStream.Position = 0;
             }

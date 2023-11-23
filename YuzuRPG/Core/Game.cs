@@ -34,9 +34,9 @@ namespace YuzuRPG.Core
             player = new Player(gameData.PLAYERSTARTX, gameData.PLAYERSTARTY, 'J', battleData);
             camera = new Camera(player, gameData.CAMERAVIEWWIDTH, gameData.CAMERAVIEWHEIGHT);
             if (OperatingSystem.IsWindows())
-                audioManager = new AudioManager(50);
+                audioManager = new AudioManager(10);
             if (OperatingSystem.IsMacOS())
-                audioManager = new MacAudioManager(50);
+                audioManager = new MacAudioManager(25);
             transition = new Transition(gameData.SCREENTRANSITIONSPEED, TransitionType.STRIPEDSIDEBYSIDE);
             stepTimer = new Stopwatch();
 
@@ -99,7 +99,7 @@ namespace YuzuRPG.Core
             transition.Render();
             List<Actor> enemies = new List<Actor>();
             // less than max btw, so 1, 3 is 1 to 2 enemies
-            var numEnemies = random.Next(1, 5);
+            var numEnemies = random.Next(4, 7);
             for (int i = 0; i < numEnemies; i++)
             {
                 enemies.Add(new Actor(battleData.ActorModels[0], random.Next(3,6)));

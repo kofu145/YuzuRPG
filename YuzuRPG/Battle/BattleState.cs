@@ -30,6 +30,15 @@ public class BattleState
         DialogueBuffer = "";
         this.battleData = battleData;
         State = BattleStates.ONGOING;
+        foreach (var actor in Party)
+        {
+            actor.ResetModifiers();
+        }
+
+        foreach (var actor in Enemies)
+        {
+            actor.ResetModifiers();
+        }
     }
 
     public void AdvanceTurnState()
@@ -93,6 +102,19 @@ public class BattleState
 
         if (enemyWin)
             State = BattleStates.ENEMYWIN;
+
+        if (State != BattleStates.ONGOING)
+        {
+            foreach (var actor in Party)
+            {
+                actor.ResetModifiers();
+            }
+
+            foreach (var actor in Enemies)
+            {
+                actor.ResetModifiers();
+            }
+        }
         
         return State;
     }

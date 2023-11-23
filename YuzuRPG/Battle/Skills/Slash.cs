@@ -16,7 +16,7 @@ public class Slash : Skill
 
     public override void Perform(BattleState battleState, Actor source, List<Actor> targets)
     {
-        DoDamage(battleState, source, targets[0]);
+        DoDamage(battleState, source, targets[0], AccCheck(battleState, source, targets[0]));
         PayMana(source);
         
         
